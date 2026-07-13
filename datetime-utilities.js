@@ -208,6 +208,36 @@ function toDate(input) {
 
 
 /**
+ * @example
+ * convertTime(1, 'day', 'second')   // 86400
+ * convertTime(1, 'd', 's')          // 86400
+ * convertTime(1, 'y', 'd')          // 365.046
+ * convertTime(1, 'y', 'd', 'floor') // 365
+ * convertTime(5, 'm', 's')          // 300
+ * @param {number} val
+ * @param {string} source
+ * @param {...string} options target unit and/or a `Math` method name (e.g. 'floor')
+ * @returns {number}
+ */
+function convertTime(val, source, ...options) {
+  let math, targetValue;
+
+  for (const option of options) {
+    const mathCandidate = Math[option];
+    if (mathCandidate) {
+      math = mathCandidate;
+      break;
+    }
+    targetValue = findUnit(option).value;
+  }
+
+  const result = (val * findUnit(source).value) / (targetValue ?? findUnit('ms').value);
+  return typeof math === 'function' ? math(result) : result;
+}
+
+
+
+/**
  * @typedef {Object} TimeObject
  * @property {number} years
  * @property {number} months
